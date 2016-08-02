@@ -390,14 +390,35 @@ void debrush_do_draw_string_default(DEBrush *brush,
 
     if(needfill){
         XGlyphInfo extents;
+        int qM_y, qM_height;
         if(ioncore_g.enc_utf8){
+            char *strM = malloc(len+3);
+            snprintf(strM, len+2, "qM%s", str);
+
+            XftTextExtentsUtf8(ioncore_g.dpy, font, (XftChar8*)strM, len+2,
+                               &extents);
+            free(strM);
+
+            qM_y = extents.y;
+            qM_height = extents.height;
+
             XftTextExtentsUtf8(ioncore_g.dpy, font, (XftChar8*)str, len,
                                &extents);
         }else{
+            char *strM = malloc(len + 3);
+            snprintf(strM, len+2, "qM%s", str);
+
+            XftTextExtents8(ioncore_g.dpy, font, (XftChar8*)strM, len+2,
+                            &extents);
+            free(strM);
+
+            qM_y = extents.y;
+            qM_height = extents.height;
+
             XftTextExtents8(ioncore_g.dpy, font, (XftChar8*)str, len, &extents);
         }
-        XftDrawRect(draw, &(colours->bg), x-extents.x, y-extents.y,
-                    extents.width+10, extents.height);
+        XftDrawRect(draw, &(colours->bg), x-extents.x+1, y-qM_y,
+                    extents.width+10, qM_height);
     }
 
     if(ioncore_g.enc_utf8){
